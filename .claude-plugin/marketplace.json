@@ -9,7 +9,7 @@
       "name": "rasputin",
       "source": "./",
       "description": "Install and operate a Rasputin homelab cluster: guided flashing with dry-run-first safety, signature/checksum verification, health-probe install verification, first-boot troubleshooting.",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "category": "devops",
       "tags": ["homelab", "cluster", "raspberry-pi", "self-hosted"]
     }

@@ -40,7 +40,33 @@ Establish before touching anything:
 
 The flashing host must be macOS or Linux (`bootstrap.sh` exits on anything else).
 
-## 2. Flash — dry-run first, always
+## 2. Verify the release — mandatory, before any write
+
+The flasher checks the image's SHA-256 against the release manifest, but it does **not**
+verify the manifest's own signature. That step is yours:
+
+```sh
+curl -fsSLO https://rasputin.geekdojo.com/rasputin-root-ca.pem
+# Cross-check this fingerprint against the one published on
+# https://rasputin.geekdojo.com/docs/agents/ (mirrored in this repo's README):
+openssl x509 -in rasputin-root-ca.pem -noout -fingerprint -sha256
+
+curl -fsSL -o manifest.json \
+  https://github.com/geekdojo/rasputin-os/releases/latest/download/manifest.json
+if curl -fsSL -o manifest.json.sig \
+  https://github.com/geekdojo/rasputin-os/releases/latest/download/manifest.json.sig; then
+  openssl cms -verify -binary -inform DER -in manifest.json.sig \
+    -content manifest.json -CAfile rasputin-root-ca.pem -out /dev/null
+else
+  echo "No manifest.json.sig on this release (predates signing)." \
+       "Integrity is HTTPS + sha256 only — tell the user."
+fi
+```
+
+An **absent** `.sig` on older releases is expected — say so and continue. A **failing**
+verification is a stop condition: do not flash, tell the user exactly what failed.
+
+## 3. Flash — dry-run first, always
 
 ```sh
 curl -fsSL https://rasputin.geekdojo.com/bootstrap.sh | sudo \
@@ -68,7 +94,7 @@ manifest, `xz -d` + write, then place a seed file on the FAT volume **labeled
 CA at https://rasputin.geekdojo.com/rasputin-root-ca.pem) are in the agents doc — note
 the firewall artifacts ship detached CMS `.sig`s, OS `.img.xz` is checksum-only.
 
-## 3. Boot and verify — machine-checkable
+## 4. Boot and verify — machine-checkable
 
 Slot the media, wired ethernet, power on. First boot takes a few minutes; connection
 refused during it is normal. Poll:
@@ -83,7 +109,7 @@ lease for host `rasputin` and probe `http://<ip>/healthz` instead. The cluster C
 fetchable at `http://rasputin.local/mesh-ca.pem` if the user wants it in their trust
 store before the browser step.
 
-## 4. Hand off to the human (required)
+## 5. Hand off to the human (required)
 
 Two steps are deliberately human-only — walk the user to a browser and wait:
 
@@ -93,7 +119,7 @@ Two steps are deliberately human-only — walk the user to a browser and wait:
    there is nothing for you to type.
 2. **Dashboard setup wizard** (banner): name the installation, Finish. Re-runnable.
 
-## 5. More nodes
+## 6. More nodes
 
 Use the dashboard's **+** (Add node) wizard — it emits a one-liner with an id-bound join
 token baked in. Run that one-liner as given for each new node's media. Do **not**
@@ -101,7 +127,7 @@ hand-construct compute seeds (`RASPUTIN_NATS_URL`, `RASPUTIN_CP_JOIN_TOKEN`). No
 PENDING → ONLINE on the hex grid; cluster caps at 24 nodes. The optional firewall node is
 a separate x86-only image with its own seed — see the agents doc.
 
-## 6. Troubleshooting
+## 7. Troubleshooting
 
 | Symptom | Fix |
 | --- | --- |

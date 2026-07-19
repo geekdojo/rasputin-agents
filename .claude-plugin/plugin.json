@@ -1,7 +1,7 @@
 {
   "name": "rasputin",
   "description": "Install and operate Rasputin, the open-source homelab cluster system: guided non-interactive flashing, signature/checksum verification, health-probe install verification, and first-boot troubleshooting.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": {
     "name": "geekdojo"
   },

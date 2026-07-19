@@ -45,5 +45,15 @@ ten-minute path.
 AGENTS.md                                instructions for agents working in this repo
 ```
 
+## Trust
+
+The Rasputin root CA (release-signature trust anchor, also baked into every image) is
+published at https://rasputin.geekdojo.com/rasputin-root-ca.pem. Its SHA-256 fingerprint,
+mirrored here as a second channel:
+
+```
+67:7E:57:06:13:87:3E:08:A3:2C:F5:F4:52:76:10:33:8D:57:5A:C4:E9:67:5C:CD:91:C4:43:FE:BD:27:C1:B9
+```
+
 Pre-alpha, honestly labeled: image layouts and update formats still change without
 notice. Issues → [rasputin-control-plane](https://github.com/geekdojo/rasputin-control-plane/issues).
