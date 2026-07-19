@@ -1,0 +1,11 @@
+{
+  "name": "rasputin",
+  "description": "Install and operate Rasputin, the open-source homelab cluster system: guided non-interactive flashing, signature/checksum verification, health-probe install verification, and first-boot troubleshooting.",
+  "version": "0.1.0",
+  "author": {
+    "name": "geekdojo"
+  },
+  "homepage": "https://rasputin.geekdojo.com/docs/agents/",
+  "repository": "https://github.com/geekdojo/rasputin-agents",
+  "license": "AGPL-3.0"
+}

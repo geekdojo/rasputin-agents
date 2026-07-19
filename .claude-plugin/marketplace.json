@@ -1,0 +1,17 @@
+{
+  "name": "geekdojo",
+  "owner": {
+    "name": "geekdojo"
+  },
+  "description": "Plugins for geekdojo products. Currently: Rasputin, the open-source homelab cluster system.",
+  "plugins": [
+    {
+      "name": "rasputin",
+      "source": "./plugins/rasputin",
+      "description": "Install and operate a Rasputin homelab cluster: guided flashing with dry-run-first safety, signature/checksum verification, health-probe install verification, first-boot troubleshooting.",
+      "version": "0.1.0",
+      "category": "devops",
+      "tags": ["homelab", "cluster", "raspberry-pi", "self-hosted"]
+    }
+  ]
+}
