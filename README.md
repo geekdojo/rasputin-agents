@@ -38,14 +38,12 @@ ten-minute path.
 
 ```
 .claude-plugin/marketplace.json          this repo as a Claude Code plugin marketplace
-plugins/rasputin/                        the "rasputin" plugin (canonical skill lives here)
-  .claude-plugin/plugin.json
-  skills/rasputin-setup/SKILL.md
-.agents/skills/rasputin-setup/SKILL.md   byte-identical copy for Codex discovery
+.claude-plugin/plugin.json               the "rasputin" plugin (repo root = plugin root;
+                                         its `skills` field points at .agents/skills/)
+.agents/skills/rasputin-setup/SKILL.md   the ONE canonical skill — Codex finds it here by
+                                         convention, the Claude Code plugin by manifest
 AGENTS.md                                instructions for agents working in this repo
 ```
-
-The two `SKILL.md` copies must stay identical — CI-free rule for now, enforced by review.
 
 Pre-alpha, honestly labeled: image layouts and update formats still change without
 notice. Issues → [rasputin-control-plane](https://github.com/geekdojo/rasputin-control-plane/issues).

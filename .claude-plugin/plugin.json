@@ -7,5 +7,6 @@
   },
   "homepage": "https://rasputin.geekdojo.com/docs/agents/",
   "repository": "https://github.com/geekdojo/rasputin-agents",
-  "license": "AGPL-3.0"
+  "license": "AGPL-3.0",
+  "skills": "./.agents/skills/"
 }

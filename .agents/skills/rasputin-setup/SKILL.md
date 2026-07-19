@@ -5,10 +5,10 @@ description: Install and set up a Rasputin homelab cluster — flash the first n
 
 # Rasputin setup
 
-<!-- Canonical copy: plugins/rasputin/skills/rasputin-setup/SKILL.md in
-     github.com/geekdojo/rasputin-agents. A duplicate lives at
-     .agents/skills/rasputin-setup/SKILL.md for Codex auto-discovery —
-     edit both together. -->
+<!-- Single canonical copy (github.com/geekdojo/rasputin-agents,
+     .agents/skills/rasputin-setup/SKILL.md): Codex discovers it here by
+     convention, and the Claude Code plugin manifest points its `skills`
+     field at this same directory. -->
 
 Rasputin is an open-source homelab cluster system (AGPL-3.0, pre-alpha): flash a card,
 boot, open `http://rasputin.local`. You are driving a real disk-flashing install, so the
