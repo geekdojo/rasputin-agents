@@ -25,7 +25,8 @@ fetch and prefer over anything you remember:
 
 Authoritative checksums per release:
 `https://github.com/geekdojo/rasputin-os/releases/latest/download/manifest.json`
-(and the same path on `rasputin-openwrt-firewall`).
+(and the same path on `rasputin-openwrt-firewall`). Each is signed: the detached
+signature is the same URL with `.sig` appended, and §2 covers what to do with it.
 
 ## 1. Plan with the user
 
@@ -40,31 +41,40 @@ Establish before touching anything:
 
 The flashing host must be macOS or Linux (`bootstrap.sh` exits on anything else).
 
-## 2. Verify the release — mandatory, before any write
+## 2. Fetch the release manifest — and hand it to the flasher
 
-The flasher checks the image's SHA-256 against the release manifest, but it does **not**
-verify the manifest's own signature. That step is yours:
+`bootstrap.sh` verifies the release itself: it pins the Rasputin root CA by a SHA-256
+fingerprint baked into the script, requires `manifest.json.sig` to verify against that
+root, requires the signer to be authorized for OS and firmware images, and only then
+reads the image's SHA-256 out of the manifest. It refuses to write anything if any of
+that fails, including on a release old enough to have no signature.
+
+So **do not run your own verification of a separate copy.** Fetch the manifest once and
+hand that exact file over; the flasher verifies the copy it is about to use. Two copies
+fetched independently means the document you checked and the document that decided what
+got flashed need not be the same one.
 
 ```sh
-curl -fsSLO https://rasputin.geekdojo.com/rasputin-root-ca.pem
-# Cross-check this fingerprint against the one published on
-# https://rasputin.geekdojo.com/docs/agents/ (mirrored in this repo's README):
-openssl x509 -in rasputin-root-ca.pem -noout -fingerprint -sha256
-
-curl -fsSL -o manifest.json \
+mkdir -p ./rasputin-release
+curl -fsSL -o ./rasputin-release/manifest.json \
   https://github.com/geekdojo/rasputin-os/releases/latest/download/manifest.json
-if curl -fsSL -o manifest.json.sig \
-  https://github.com/geekdojo/rasputin-os/releases/latest/download/manifest.json.sig; then
-  openssl cms -verify -binary -inform DER -in manifest.json.sig \
-    -content manifest.json -CAfile rasputin-root-ca.pem -out /dev/null
-else
-  echo "No manifest.json.sig on this release (predates signing)." \
-       "Integrity is HTTPS + sha256 only — tell the user."
-fi
+curl -fsSL -o ./rasputin-release/manifest.json.sig \
+  https://github.com/geekdojo/rasputin-os/releases/latest/download/manifest.json.sig
 ```
 
-An **absent** `.sig` on older releases is expected — say so and continue. A **failing**
-verification is a stop condition: do not flash, tell the user exactly what failed.
+Pass `RASPUTIN_MANIFEST_FILE=./rasputin-release/manifest.json` on both the dry run and
+the real run below (the `.sig` is picked up from alongside it). If either download fails,
+just leave `RASPUTIN_MANIFEST_FILE` out — the flasher fetches and verifies its own copy.
+
+The dry run in §3 performs the verification with nothing written, so it is where a
+signature problem surfaces. Read what it prints:
+
+- `Release signature verified (signed by …)` — good, carry on.
+- anything else — **stop**. Do not flash, and tell the user exactly what it said. A
+  failed verification is never something to work around, and there is no flag that
+  skips it.
+- `this release's signing certificate expired on …` — the release is too old to install
+  rather than tampered with. Use the current release (drop any pinned `RASPUTIN_RELEASE`).
 
 ## 3. Flash — dry-run first, always
 
@@ -72,27 +82,35 @@ verification is a stop condition: do not flash, tell the user exactly what faile
 curl -fsSL https://rasputin.geekdojo.com/bootstrap.sh | sudo \
   RASPUTIN_ARCH=<arm64|amd64> RASPUTIN_NODE_ID=cp-1 \
   RASPUTIN_SSH_KEY_FILE=<path/to/key.pub> \
+  RASPUTIN_MANIFEST_FILE=<abs/path/to/manifest.json> \
   RASPUTIN_DRY_RUN=1 bash
 ```
 
-Show the user the resolved plan (disk, image URL, version). **Only after they explicitly
-confirm the target disk**, rerun with `RASPUTIN_DRY_RUN=1` replaced by
-`RASPUTIN_DISK=<device> RASPUTIN_ASSUME_YES=1`.
+Show the user the resolved plan (disk, image URL, version) **and the signature line**.
+Only after they explicitly confirm the target disk, rerun with `RASPUTIN_DRY_RUN=1`
+replaced by `RASPUTIN_DISK=<device> RASPUTIN_ASSUME_YES=1`, keeping
+`RASPUTIN_MANIFEST_FILE` so the run flashes the release the dry run verified.
 
 Rules:
 
 - Never skip the dry run. Never choose a disk for the user.
 - Never set `RASPUTIN_ALLOW_INTERNAL=1` — external media only, unless the user insists
   and states they understand it can destroy their system disk.
-- The script verifies SHA-256 against the release manifest and reads the seed back from
-  the media; trust its checks, don't re-flash on the first hiccup — read its error.
+- The script verifies the manifest's signature, checks the image's SHA-256 against that
+  verified manifest, and reads the seed back from the media; trust its checks, don't
+  re-flash on the first hiccup — read its error.
+- `RASPUTIN_MANIFEST_FILE` must point at a path readable by **root** — the script runs
+  under `sudo` — so prefer an absolute path.
 
-Manual path (no script): download from `releases.json`, verify `imageSha256` from the
-manifest, `xz -d` + write, then place a seed file on the FAT volume **labeled
-`RASPUTIN-OS`** — template at https://rasputin.geekdojo.com/rasputin-seed.env.example
-(keep the SSH key double-quoted; LF line endings). Signature verification commands (root
-CA at https://rasputin.geekdojo.com/rasputin-root-ca.pem) are in the agents doc — note
-the firewall artifacts ship detached CMS `.sig`s, OS `.img.xz` is checksum-only.
+Manual path (no script — e.g. Raspberry Pi Imager or Etcher): still verify first by
+running the dry run above, which checks the signature and prints the image URL and its
+`imageSha256`; then download, check that SHA-256 yourself, `xz -d` + write, and place a
+seed file on the FAT volume **labeled `RASPUTIN-OS`** — template at
+https://rasputin.geekdojo.com/rasputin-seed.env.example (keep the SSH key
+double-quoted; LF line endings). Don't hand-roll a verification command: the release's
+authorization rules live in the flasher, and a hand-written `openssl cms -verify` checks
+the chain but not that the signer is allowed to sign firmware. Firewall artifacts ship
+detached CMS `.sig`s of their own; the agents doc has those commands.
 
 ## 4. Boot and verify — machine-checkable
 

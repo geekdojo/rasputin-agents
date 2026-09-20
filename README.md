@@ -62,5 +62,9 @@ mirrored here as a second channel:
 67:7E:57:06:13:87:3E:08:A3:2C:F5:F4:52:76:10:33:8D:57:5A:C4:E9:67:5C:CD:91:C4:43:FE:BD:27:C1:B9
 ```
 
+The flasher (`bootstrap.sh`) carries the same fingerprint in its own source and refuses a
+root CA that does not match it, so a first flash does not depend on anyone comparing this
+by eye. This mirror is for a human who wants a second channel.
+
 Pre-alpha, honestly labeled: image layouts and update formats still change without
 notice. Issues → [rasputin-control-plane](https://github.com/geekdojo/rasputin-control-plane/issues).
