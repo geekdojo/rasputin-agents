@@ -43,6 +43,8 @@ ten-minute path.
 .agents/skills/rasputin-setup/SKILL.md   the ONE canonical skill — Codex finds it here by
                                          convention, the Claude Code plugin by manifest
 AGENTS.md                                instructions for agents working in this repo
+CLAUDE.md                                imports AGENTS.md for Claude Code (which doesn't read
+                                         AGENTS.md natively)
 ```
 
 ## AI-assisted development
