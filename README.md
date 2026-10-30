@@ -31,8 +31,8 @@ to install Rasputin. Any agent supporting the open
 Everything the skill does is plain shell against documented endpoints:
 [Install with an AI agent](https://rasputin.geekdojo.com/docs/agents/) is the
 human-readable contract, and
-[Getting started](https://rasputin.geekdojo.com/docs/getting-started/) is the
-ten-minute path.
+[Get in the first time](https://rasputin.geekdojo.com/docs/get-in-the-first-time/) is
+the one-time trust and passkey path.
 
 ## Layout
 
