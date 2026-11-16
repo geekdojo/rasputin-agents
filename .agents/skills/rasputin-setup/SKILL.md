@@ -104,7 +104,7 @@ Rules:
 
 Manual path (no script, for example on Windows): use Raspberry Pi Imager, which works
 on every OS and takes the `.img.xz` as it is. From Rasputin OS
-`RASPUTIN_OS_ONE_STREAM_VERSION` on, Rufus can't open the image and balenaEtcher needs
+2026.11.2 on, Rufus can't open the image and balenaEtcher needs
 8 GB of RAM or more. Still verify first by running the dry run above, which checks the
 signature and prints the image URL and its `imageSha256`; then download, check that
 SHA-256 yourself, write it with Imager (or `xz -d` and `dd`), and place a seed file on
@@ -156,7 +156,7 @@ a separate x86-only image with its own seed — see the agents doc.
 | `rasputin.local` won't resolve | Client lacks mDNS or router blocks it — use the DHCP-lease IP for host `rasputin` |
 | First boot waits forever / seed ignored | Seed must be named `rasputin-seed.env`, at the root of the FAT volume **labeled** `RASPUTIN-OS` (the Pi image has several FAT partitions — go by label); SSH key double-quoted; LF endings |
 | Etcher on macOS: "validation failed" at the end | Usually benign — macOS auto-mounted the seed volume and dirtied it. Check the seed file landed; carry on |
-| Etcher: memory usage limit error; Rufus: "Unsupported image" | The image needs more memory to unpack than the tool allows (Rufus never can, from `RASPUTIN_OS_ONE_STREAM_VERSION` on). Use Raspberry Pi Imager |
+| Etcher: memory usage limit error; Rufus: "Unsupported image" | The image needs more memory to unpack than the tool allows (Rufus never can, from 2026.11.2 on). Use Raspberry Pi Imager |
 | Anything took over an hour | That's a bug by the project's own definition — file it: https://github.com/geekdojo/rasputin-control-plane/issues |
 
 Pre-alpha honesty: don't put it in front of a network the user cares about yet, and
